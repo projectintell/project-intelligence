@@ -32,8 +32,49 @@ export const EVENT_TYPE = {
   Other: 326840004,
 } as const;
 
-// TODO: Priority (High/Medium/Low, 326840000-326840002 per the schema
-// reference note — confirm via Edit choice, there are 3 "Priority" global
-// choices in the environment), Relevance, ReviewStatus, Product Tag,
-// Source Tag, Document Type, Status — pull values before wiring up any
-// UI that needs to display or set these as human-readable labels.
+// Choice: Priority / Relevance (High/Medium/Low — same numbering convention)
+export const PRIORITY = { High: 326840000, Medium: 326840001, Low: 326840002 } as const;
+export const RELEVANCE = { High: 326840000, Medium: 326840001, Low: 326840002 } as const;
+
+// Choice: ReviewStatus (Events Dev, local choice)
+export const REVIEW_STATUS = { Pending: 326840000, Accepted: 326840001, Rejected: 326840002 } as const;
+
+// Choice: Status (Cases Dev, local choice)
+export const STATUS = { Open: 326840000, Closed: 326840001, OnHold: 326840002 } as const;
+
+// Choice: Document Type (Documents Dev, local choice)
+export const DOCUMENT_TYPE = { Email: 326840000, PDF: 326840001, WordDocument: 326840002, Other: 326840003 } as const;
+
+// Choice: Product Tag (global choice, synced) — which Project Intelligence
+// module a Case/Document/Event row belongs to.
+export const PRODUCT_TAG = {
+  ClaimsIntelligence: 100000000,
+  ClaimScore: 100000001,
+  DueDiligence: 100000002,
+  ManagementIntelligence: 100000003,
+  ContractIntelligence: 100000004,
+} as const;
+
+// Choice: Source Tag (global choice, synced) — who the Case/Document/Event
+// row came from.
+export const SOURCE_TAG = {
+  ClaimsConsultant: 100000000,
+  Subcontractor: 100000001,
+  Contractor: 100000002,
+  PrivateEquity: 100000003,
+  Lawyer: 100000004,
+} as const;
+
+/** Maps a text-extraction-detected file kind to the Document Type choice value. */
+export function documentTypeForKind(kind: 'email' | 'pdf' | 'docx' | 'other'): number {
+  switch (kind) {
+    case 'email':
+      return DOCUMENT_TYPE.Email;
+    case 'pdf':
+      return DOCUMENT_TYPE.PDF;
+    case 'docx':
+      return DOCUMENT_TYPE.WordDocument;
+    default:
+      return DOCUMENT_TYPE.Other;
+  }
+}

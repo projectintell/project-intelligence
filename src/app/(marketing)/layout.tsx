@@ -17,9 +17,15 @@ export default function MarketingLayout({
         </nav>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="py-10 text-xs text-slate-500">
-        © {new Date().getFullYear()} Second City Assets Ltd. All rights
-        reserved.
+      <footer className="flex flex-col gap-2 py-10 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <span>
+          © {new Date().getFullYear()} Second City Assets Ltd. All rights
+          reserved.
+        </span>
+        <nav className="flex gap-4">
+          <a href="/privacy" className="underline">Privacy Policy</a>
+          <a href="/terms" className="underline">Terms &amp; Conditions</a>
+        </nav>
       </footer>
     </div>
   );
