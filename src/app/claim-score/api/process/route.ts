@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     readSubmissionMeta(submissionId),
     dataverse.list(
       DATAVERSE_TABLES.casesDev,
-      `$filter=cr3ed_CaseID eq '${submissionId}'`,
+      `$filter=cr3ed_caseid eq '${submissionId}'`,
     ) as Promise<{ value: CaseDevRecord[] }>,
     listSubmissionFiles(submissionId),
   ]);
