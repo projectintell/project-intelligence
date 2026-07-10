@@ -69,7 +69,7 @@ export const dataverse = {
     dataverseFetch(`${entitySet}(${id})${query ? `?${query}` : ''}`),
 
   /** POST a new record. Returns the created record's id (from OData-EntityId header). */
-  create: async (entitySet: string, data: Record<string, unknown>) => {
+  create: async <T extends object>(entitySet: string, data: T) => {
     const token = await getAccessToken();
     const res = await fetch(`${DATAVERSE_URL}/api/data/v9.2/${entitySet}`, {
       method: 'POST',
@@ -90,7 +90,7 @@ export const dataverse = {
   },
 
   /** PATCH (partial update) an existing record. */
-  update: (entitySet: string, id: string, data: Record<string, unknown>) =>
+  update: <T extends object>(entitySet: string, id: string, data: T) =>
     dataverseFetch(`${entitySet}(${id})`, {
       method: 'PATCH',
       body: JSON.stringify(data),
