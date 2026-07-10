@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
   const outcomes = await mapWithConcurrency(files, EXTRACTION_CONCURRENCY, async (file): Promise<DocumentOutcome> => {
     const filename = file.pathname.split('/').pop() ?? file.pathname;
     try {
-      const res = await fetch(file.url);
+      const res = await fetch(file.url, { headers: { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` } });
       const buffer = await res.arrayBuffer();
       const extracted = await extractDocumentText(filename, buffer);
 
