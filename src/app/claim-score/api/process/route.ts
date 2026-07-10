@@ -7,6 +7,7 @@ import {
   readSubmissionMeta,
   writeSubmissionResult,
 } from '@/lib/blob';
+// redeploy trigger: force fresh build after transient Vercel infra failure
 import { dataverse } from '@/lib/dataverse';
 import { DATAVERSE_TABLES, PRODUCT_TAG, SOURCE_TAG, documentTypeForKind } from '@/lib/dataverse-schema';
 import type { CaseDevRecord, DocumentDevRecord, EventDevRecord } from '@/types/dataverse';
