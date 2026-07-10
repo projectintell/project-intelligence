@@ -35,7 +35,7 @@ async function extractDocx(buffer: Buffer): Promise<ExtractedDocument> {
   return { kind: 'docx', text: result.value };
 }
 
-function extractMsg(buffer: Buffer): ExtractedDocument {
+function extractMsg(buffer: ArrayBuffer): ExtractedDocument {
   const reader = new MsgReader(buffer);
   const data = reader.getFileData();
   const bodyText = data.body ?? '';
@@ -66,7 +66,7 @@ export async function extractDocumentText(
     case 'docx':
       return extractDocx(nodeBuffer);
     case 'email':
-      return extractMsg(nodeBuffer);
+      return extractMsg(buffer);
     default:
       throw new Error(`Unsupported file type for "${filename}" — only PDF, DOCX, MSG are accepted`);
   }
