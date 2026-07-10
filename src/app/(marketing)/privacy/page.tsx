@@ -60,7 +60,7 @@ export default function PrivacyPolicyPage() {
         <div>
           <h2 className="text-lg font-semibold text-slate-900">3. How we use it</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>To provide the Claim Score or Claims Intelligence service you've paid for or signed up to, including running your uploaded documents through our AI extraction/scoring pipeline.</li>
+            <li>To provide the Claim Score or Claims Intelligence service you&apos;ve paid for or signed up to, including running your uploaded documents through our AI extraction/scoring pipeline.</li>
             <li>To create and secure your account, and to communicate with you about your submission or results.</li>
             <li>If you opt in at checkout, to pass your contact details and Claim Score result to a claims consultant so they can follow up with you.</li>
             <li>If you separately opt in to marketing, to email you about other Chronicle products and services. You can withdraw this consent at any time (see section 7).</li>
@@ -86,7 +86,7 @@ export default function PrivacyPolicyPage() {
             If you opt in to consultant contact at checkout, we also share
             your contact details and result summary with the claims
             consultant handling your enquiry. We do not sell your data to
-            anyone, and we don't share it with third parties for their own
+            anyone, and we don&apos;t share it with third parties for their own
             marketing purposes.
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold text-slate-900">5. Where your data is processed</h2>
           <p className="mt-2">
             Some of the providers above are based outside the UK/EEA
-            (including the US). Where that's the case, we rely on
+            (including the US). Where that&apos;s the case, we rely on
             appropriate safeguards — such as Standard Contractual Clauses —
             to protect your data, as required by UK GDPR.
           </p>
@@ -107,9 +107,9 @@ export default function PrivacyPolicyPage() {
             We keep account and submission data for as long as your account
             is active, plus a reasonable period afterwards for legal,
             accounting, or dispute-resolution purposes. Marketing consent is
-            kept until you withdraw it. We're still finalising exact
+            kept until you withdraw it. We&apos;re still finalising exact
             retention periods for each data type — this section will be
-            updated once that's settled.
+            updated once that&apos;s settled.
           </p>
         </div>
 
