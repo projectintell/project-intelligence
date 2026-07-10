@@ -16,17 +16,48 @@ export default function ClaimScorePage() {
 
       <div className="mt-10 grid gap-6 sm:grid-cols-3">
         {CLAIM_SCORE_TIERS.map((tier) => (
-          <form key={tier.id} action="/claim-score/api/checkout" method="POST">
+          <form
+            key={tier.id}
+            action="/claim-score/api/checkout"
+            method="POST"
+            className="flex flex-col rounded-lg border border-slate-200 p-6"
+          >
             <input type="hidden" name="tier" value={tier.id} />
+            <p className="font-medium">{tier.name}</p>
+            <p className="mt-2 text-3xl font-bold">£{tier.price}</p>
+            <p className="text-sm text-slate-500">
+              up to {tier.pages} pages (~{tier.approxDocs} documents)
+            </p>
+
+            <label className="mt-4 flex items-start gap-2 text-xs text-slate-600">
+              <input type="checkbox" name="consultantOptIn" className="mt-0.5" />
+              <span>
+                Get 15% off (£{tier.withConsultant}) and agree to be contacted
+                by a claims consultant about your results.
+              </span>
+            </label>
+
+            {/* Marketing consent — deliberately separate checkbox from
+                consultant opt-in above, unticked by default, specific
+                about what it covers. Copy decided in build-decisions.md
+                (Q8, 2026-07-09). Not a substitute for legal review. */}
+            <label className="mt-2 flex items-start gap-2 text-xs text-slate-600">
+              <input type="checkbox" name="marketingConsent" className="mt-0.5" />
+              <span>
+                Yes, keep me updated by email about other Chronicle products
+                and services. You can unsubscribe at any time — see our{' '}
+                <a href="/privacy" className="underline">
+                  Privacy Policy
+                </a>
+                .
+              </span>
+            </label>
+
             <button
               type="submit"
-              className="w-full rounded-lg border border-slate-200 p-6 text-left hover:border-slate-400"
+              className="mt-4 w-full rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white"
             >
-              <p className="font-medium">{tier.name}</p>
-              <p className="mt-2 text-3xl font-bold">£{tier.price}</p>
-              <p className="text-sm text-slate-500">
-                up to {tier.pages} pages (~{tier.approxDocs} documents)
-              </p>
+              Get my Claim Score
             </button>
           </form>
         ))}

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type Stripe from 'stripe';
 import { stripe } from '@/lib/stripe';
 
 // Stripe webhook: confirms payment before releasing the upload screen /
@@ -24,10 +25,20 @@ export async function POST(req: NextRequest) {
   }
 
   switch (event.type) {
-    case 'checkout.session.completed':
-      // TODO: create the submission record (Dataverse, Product=ClaimScore)
-      // and redirect the customer to /claim-score/upload.
+    case 'checkout.session.completed': {
+      // TODO: create the submission record (Dataverse, Product=ClaimScore),
+      // persisting session.metadata.consultantOptIn / .marketingConsent /
+      // .tierName, session.customer_details?.email, and the company_name
+      // custom_field below — the process route (api/process, Q7) needs all
+      // of this once scoring completes, to fire the consultant lead
+      // notification (lib/consultant-notify.ts) for opted-in submissions.
+      const session = event.data.object as Stripe.Checkout.Session;
+      const companyName = session.custom_fields?.find(
+        (f) => f.key === 'company_name',
+      )?.text?.value;
+      void companyName; // referenced above in the TODO — silences unused-var lint until the Dataverse write is built
       break;
+    }
     default:
       break;
   }

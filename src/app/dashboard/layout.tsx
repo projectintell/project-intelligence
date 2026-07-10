@@ -1,7 +1,6 @@
 // Claims Intelligence dashboard layout — the consulting-client-facing
-// product. TODO: gate this behind auth once the identity approach is
-// decided (see open items in project-intelligence-rebuild-evaluation
-// memory).
+// product. Route-level auth gating (Microsoft sign-in required) is handled
+// by src/middleware.ts, not here — see lib/auth.ts for the provider setup.
 export default function DashboardLayout({
   children,
 }: {

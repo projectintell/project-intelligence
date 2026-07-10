@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AuthSessionProvider } from '@/components/auth-session-provider';
 
 export const metadata: Metadata = {
-  title: 'Project Intelligence',
+  title: 'Chronicle',
   description:
     'Claims Intelligence and Claim Score — AI-assisted construction claims analysis.',
 };
@@ -15,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white text-slate-900 antialiased">
-        {children}
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   );
