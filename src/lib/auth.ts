@@ -24,12 +24,14 @@ export const authOptions: NextAuthOptions = {
     signIn: '/dashboard/signin',
   },
   callbacks: {
-    async jwt({ token }) {
-      // Anyone arriving via this provider is, by definition, a Claims
-      // Intelligence consultant signing in with a Microsoft account.
-      token.userType = 'consultant';
-      return token;
-    },
+      async jwt({ token, account }) {
+                // Anyone arriving via this provider is, by definition, a Claims
+                // Intelligence consultant signing in with a Microsoft account.
+                if (account?.provider === 'azure-ad') {
+                            token.userType = 'consultant';
+                }
+                return token;
+      },
     async session({ session, token }) {
       session.userType = token.userType as 'consultant' | 'subcontractor' | undefined;
       return session;
