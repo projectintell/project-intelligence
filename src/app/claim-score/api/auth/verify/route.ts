@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const sessionToken = await mintSubcontractorSessionToken(payload.email);
   const destination = payload.submissionId
     ? `/claim-score/results/${payload.submissionId}`
-    : '/claim-score';
+    : '/claim-score/upload';
 
   const res = NextResponse.redirect(new URL(destination, req.url));
   res.cookies.set(SESSION_COOKIE_NAME, sessionToken, {
