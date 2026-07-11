@@ -24,9 +24,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard/signin', req.url));
   }
 
-  if (isClaimScoreProtectedRoute && token?.userType !== 'subcontractor') {
-    return NextResponse.redirect(new URL('/claim-score/signin', req.url));
-  }
+    if (isClaimScoreProtectedRoute && token?.userType !== 'subcontractor') { const signInUrl = new URL('/claim-score/signin', req.url); signInUrl.searchParams.set('callbackUrl', pathname + req.nextUrl.search); return NextResponse.redirect(signInUrl); }
 
   return NextResponse.next();
 }
