@@ -23,13 +23,14 @@ const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days — matches NextAuth's
 interface MagicLinkPayload {
   email: string;
   submissionId?: string;
+  callbackUrl?: string;
   purpose: 'claim-score-magic-link';
 }
 
-export async function createMagicLinkToken(email: string, submissionId?: string) {
+export async function createMagicLinkToken(email: string, submissionId?: string, callbackUrl?: string) {
   return encode({
     secret: process.env.NEXTAUTH_SECRET!,
-    token: { email, submissionId, purpose: 'claim-score-magic-link' } satisfies MagicLinkPayload,
+    token: { email, submissionId, callbackUrl, purpose: 'claim-score-magic-link' } satisfies MagicLinkPayload,
     maxAge: MAGIC_LINK_TTL_SECONDS,
   });
 }
@@ -37,7 +38,7 @@ export async function createMagicLinkToken(email: string, submissionId?: string)
 export async function verifyMagicLinkToken(token: string): Promise<MagicLinkPayload | null> {
   const payload = (await decode({ secret: process.env.NEXTAUTH_SECRET!, token })) as
     | MagicLinkPayload
-    | null;
+  | null;
   if (!payload || payload.purpose !== 'claim-score-magic-link') return null;
   return payload;
 }
@@ -51,20 +52,20 @@ export async function mintSubcontractorSessionToken(email: string) {
   });
 }
 
-export async function sendMagicLinkEmail(email: string, submissionId?: string) {
-  const token = await createMagicLinkToken(email, submissionId);
+export async function sendMagicLinkEmail(email: string, submissionId?: string, callbackUrl?: string) {
+  const token = await createMagicLinkToken(email, submissionId, callbackUrl);
   const url = `${process.env.NEXT_PUBLIC_SITE_URL}/claim-score/api/auth/verify?token=${token}`;
 
-  await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
-    to: email,
-    subject: 'Sign in to Claim Score',
-    html: `<p>Click below to view your Claim Score results:</p><p><a href="${url}">Sign in to Claim Score</a></p><p>This link expires in 15 minutes. If you didn't request this, you can ignore this email.</p>`,
-  });
+await resend.emails.send({
+  from: process.env.EMAIL_FROM!,
+  to: email,
+  subject: 'Sign in to Claim Score',
+  html: `<p>Click below to view your Claim Score results:</p><p><a href="${url}">Sign in to Claim Score</a></p><p>This link expires in 15 minutes. If you didn't request this, you can ignore this email.</p>`,
+});
 }
 
 /** Name of the cookie NextAuth itself uses — kept in one place so the verify route and any future code agree. */
 export const SESSION_COOKIE_NAME =
   process.env.NODE_ENV === 'production'
-    ? '__Secure-next-auth.session-token'
-    : 'next-auth.session-token';
+? '__Secure-next-auth.session-token'
+  : 'next-auth.session-token';
