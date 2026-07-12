@@ -94,12 +94,11 @@ export async function POST(req: NextRequest) {
         cr3ed_DateIngested: new Date().toISOString(),
         cr3ed_DocumentDated: extracted.documentDated,
         cr3ed_DocumentType: documentTypeForKind(extracted.kind),
-        // Only cr3ed_ExtractedText is populated. Documents Dev also has a
-        // near-identical cr3ed_TextExtraction column with no documented
-        // distinction (not part of the "2 RAW" defunct-field pattern) —
-        // worth asking Tim which one the original Power Automate flow
-        // actually used before assuming both should be written.
-        cr3ed_ExtractedText: extracted.text.slice(0, MAX_STORED_TEXT_LENGTH),
+        // cr3ed_ExtractedText is defunct (same "2 RAW" pattern as the other
+                  // legacy Documents Dev fields) and capped at 100 chars anyway -
+                  // confirmed by Tim the original Power Automate flow used
+                  // cr3ed_TextExtraction (max 1,048,000 chars) for the full text.
+                  cr3ed_TextExtraction: extracted.text.slice(0, MAX_STORED_TEXT_LENGTH),
         cr3ed_FileLink2: file.url,
         cr3ed_Processed: true,
         cr3ed_Product: PRODUCT_TAG.ClaimScore,
