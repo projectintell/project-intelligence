@@ -29,7 +29,7 @@ import type { CaseDevRecord, DocumentDevRecord, EventDevRecord } from '@/types/d
 export const maxDuration = 300; // seconds — requires Vercel Pro
 
 const EXTRACTION_CONCURRENCY = 5;
-const MAX_STORED_TEXT_LENGTH = 100_000; // guard against oversized Dataverse text-field writes
+const MAX_STORED_TEXT_LENGTH = 4_000; // cr3ed_TextExtraction's Dataverse max character count (raised from 100 to 4000 by Tim; can be raised further later)
 
 async function mapWithConcurrency<T, R>(
   items: T[],
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
         // cr3ed_ExtractedText is defunct (same "2 RAW" pattern as the other
                   // legacy Documents Dev fields) and capped at 100 chars anyway -
                   // confirmed by Tim the original Power Automate flow used
-                  // cr3ed_TextExtraction (max 1,048,000 chars) for the full text.
+                                    // cr3ed_TextExtraction (max 4,000 chars, raised from 100 by Tim) for the full text.
                   cr3ed_TextExtraction: extracted.text.slice(0, MAX_STORED_TEXT_LENGTH),
         cr3ed_FileLink2: file.url,
         cr3ed_Processed: true,
