@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       const docRecord: DocumentDevRecord = {
         'cr3ed_Case@odata.bind': caseBind,
         cr3ed_DocumentName: filename,
-        cr3ed_Date: new Date().toISOString(),
+        cr3ed_DateIngested: new Date().toISOString(),
         cr3ed_DocumentDated: extracted.documentDated,
         cr3ed_DocumentType: documentTypeForKind(extracted.kind),
         // Only cr3ed_ExtractedText is populated. Documents Dev also has a
@@ -106,8 +106,7 @@ export async function POST(req: NextRequest) {
         cr3ed_Sender: extracted.sender,
         cr3ed_Source: SOURCE_TAG.Subcontractor,
       };
-      const documentId = await dataverse.create(DATAVERSE_TABLES.documentsDev, docRecord);
-      const documentBind = documentId ? `/${DATAVERSE_TABLES.documentsDev}(${documentId})` : undefined;
+await dataverse.create(DATAVERSE_TABLES.documentsDev, docRecord);
 
       const events = await extractEvents({
         documentName: filename,
@@ -121,8 +120,7 @@ export async function POST(req: NextRequest) {
         events.map((e) => {
           const eventRecord: EventDevRecord = {
             'cr3ed_Case@odata.bind': caseBind,
-            ...(documentBind ? { 'cr3ed_Document@odata.bind': documentBind } : {}),
-            cr3ed_EventSummary: e.eventSummary,
+                                  cr3ed_EventName: e.eventSummary,
             cr3ed_ClaimSignal2RAW: e.claimSignal,
             cr3ed_ConfidenceScore: e.confidenceScore,
             cr3ed_DocName: filename,
