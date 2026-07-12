@@ -19,6 +19,14 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 
 const MODEL = 'claude-sonnet-4-5';
 
+// Claude sometimes wraps JSON output in markdown code fences (```json ... ```)
+// despite being told to return JSON only - strip them before parsing so a
+// fenced response doesn't throw "Unexpected token '`'" on JSON.parse.
+function parseJsonResponse<T>(text: string): T {
+    const fenceMatch = text.trim().match(/^```(?:json)?\s*([\s\S]*?)\s*```$/);
+    return JSON.parse(fenceMatch ? fenceMatch[1] : text.trim()) as T;
+}
+
 // --- Stage 1: per-document event extraction -------------------------------
 
 export const CLAIM_SIGNAL_VALUES = [
@@ -124,7 +132,7 @@ export async function extractEvents(doc: DocumentInput): Promise<ExtractedEvent[
   });
 
   const text = message.content.find((b) => b.type === 'text')?.text ?? '{"events":[]}';
-  const parsed = JSON.parse(text) as { events: ExtractedEvent[] };
+  const parsed = parseJsonResponse<{ events: ExtractedEvent[] }>(text);
   return parsed.events;
 }
 
@@ -191,6 +199,6 @@ export async function scoreClaim(input: ScoreClaimInput): Promise<ClaimScoreResu
   });
 
   const text = message.content.find((b) => b.type === 'text')?.text ?? '{}';
-  const parsed = JSON.parse(text) as Omit<ClaimScoreResult, 'score'> & { score: number };
+  const parsed = parseJsonResponse<Omit<ClaimScoreResult, 'score'> & { score: number }>(text);
   return parsed;
 }
