@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "claimsIntelligence": "Claims Intelligence",
+    "claimScore": "Claim Score",
+    "pricing": "Pricing",
+    "clientLogin": "Client Login"
+  },
+  "footer": {
+    "rightsReserved": "All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions"
+  },
+  "home": {
+    "title": "Chronicle",
+    "definition": "chron·i·cle — noun: a factual, chronological written account of important or historical events.",
+    "intro": "Chronicle turns contract correspondence and site records into structured, evidenced claim signals — for consultants running Claims Intelligence, and for contractors checking their own exposure with Claim Score.",
+    "ctaTryClaimScore": "Try Claim Score",
+    "ctaViewPricing": "View pricing"
+  }
+}
