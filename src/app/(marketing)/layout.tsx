@@ -9,8 +9,9 @@ export default function MarketingLayout({
   return (
     <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6">
       <header className="flex items-center justify-between py-6">
-        <span className="text-lg font-semibold">Project Intelligence</span>
+        <span className="text-lg font-semibold">Chronicle</span>
         <nav className="flex gap-6 text-sm">
+          <a href="/claims-intelligence">Claims Intelligence</a>
           <a href="/claim-score">Claim Score</a>
           <a href="/pricing">Pricing</a>
           <a href="/dashboard">Client Login</a>
