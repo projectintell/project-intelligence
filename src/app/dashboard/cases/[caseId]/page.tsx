@@ -6,12 +6,19 @@ import {
   labelForStatus,
   labelForDocumentType,
 } from '@/lib/dataverse-schema';
+import { getSessionUser } from '@/lib/auth';
 
 // Case detail ("Signal Intelligence view") — the Case's Documents and
 // extracted Events from the Dev clone tables. See dashboard/page.tsx for
 // why: reads use the Web API's lowercase logical-name keys, not the
 // mixed-case CaseDevRecord/DocumentDevRecord/EventDevRecord write-shape
 // types in types/dataverse.ts.
+//
+// Access scoping (added 2026-07-13): same rule as the Case list — see
+// dashboard/page.tsx for the full rationale. This page is reached by
+// direct URL (not just the filtered list), so it re-checks
+// cr3ed_allowedusers itself rather than trusting the list page's filter;
+// a disallowed Case 404s rather than exposing that it exists.
 export const dynamic = 'force-dynamic';
 
 interface CaseDetail {
@@ -22,6 +29,7 @@ interface CaseDetail {
   cr3ed_product?: number;
   cr3ed_status?: number;
   cr3ed_startdate?: string;
+  cr3ed_allowedusers?: string;
 }
 
 interface DocumentListItem {
@@ -56,16 +64,26 @@ function spaced(value?: string) {
 export default async function CasePage({ params }: { params: { caseId: string } }) {
   const { caseId } = params;
 
+  const session = await getSessionUser();
+  const userEmail = (session?.user?.email ?? '').toLowerCase();
+
   let caseRecord: CaseDetail;
   try {
     caseRecord = (await dataverse.retrieve(
       DATAVERSE_TABLES.casesDev,
       caseId,
-      '$select=cr3ed_casesdevid,cr3ed_casename,cr3ed_clientname,cr3ed_description,cr3ed_product,cr3ed_status,cr3ed_startdate',
+      '$select=cr3ed_casesdevid,cr3ed_casename,cr3ed_clientname,cr3ed_description,cr3ed_product,cr3ed_status,cr3ed_startdate,cr3ed_allowedusers',
     )) as CaseDetail;
   } catch {
     notFound();
   }
+
+  // Blank cr3ed_allowedusers = visible to everyone (pre-scoping Cases);
+  // see the access-scoping note above.
+  const allowed = caseRecord.cr3ed_allowedusers
+    ? caseRecord.cr3ed_allowedusers.toLowerCase().includes(userEmail)
+    : true;
+  if (!allowed) notFound();
 
   const [documentsResult, eventsResult] = await Promise.all([
     dataverse.list(

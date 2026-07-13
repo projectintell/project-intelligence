@@ -1,12 +1,24 @@
 import Link from 'next/link';
 import { dataverse } from '@/lib/dataverse';
 import { DATAVERSE_TABLES, labelForProductTag, labelForStatus } from '@/lib/dataverse-schema';
+import { getSessionUser } from '@/lib/auth';
 
 // Claims Intelligence Case list — reads from the Dev clone tables
 // (cr3ed_casesdev), the same ones Claim Score's pipeline writes to, not
-// yet the live production Cases table (see handoff-notes.md). Shows every
-// Case with no client-side scoping — single internal user for now, add
-// per-client filtering once more than one client signs in.
+// yet the live production Cases table (see handoff-notes.md).
+//
+// Access scoping (added 2026-07-13): minimal first pass of the agreed
+// Organization/per-case-allocation model (see build-decisions.md and the
+// "Claims Intelligence — user account & billing architecture" note). A
+// Case is visible to the signed-in user if their email appears in the
+// Case's cr3ed_allowedusers field — a semicolon-separated list, populated
+// by hand in Power Apps when a Case is created (no admin/invite UI yet;
+// that's the next layer on top of this, not a redo of it). Cases with
+// cr3ed_allowedusers left blank are treated as visible to every signed-in
+// user, so the 11 existing test Cases created before this field existed
+// don't silently vanish. Once every live Case has an owner populated,
+// that "blank = visible to all" fallback should be removed to close the
+// gap. Same rule applied in cases/[caseId]/page.tsx for the detail view.
 //
 // IMPORTANT: Dataverse's Web API always returns GET results keyed by the
 // fully-lowercase logical name (e.g. cr3ed_casename), never the
@@ -26,9 +38,18 @@ interface CaseListItem {
 }
 
 export default async function DashboardPage() {
+  const session = await getSessionUser();
+  const userEmail = (session?.user?.email ?? '').toLowerCase().replace(/'/g, "''");
+
+  // No accessFilter value means "no email on the session" — fail closed
+  // (only show unscoped/blank Cases) rather than fail open.
+  const accessFilter = userEmail
+    ? `(contains(tolower(cr3ed_allowedusers),'${userEmail}') or cr3ed_allowedusers eq null)`
+    : 'cr3ed_allowedusers eq null';
+
   const result = (await dataverse.list(
     DATAVERSE_TABLES.casesDev,
-    '$select=cr3ed_casesdevid,cr3ed_casename,cr3ed_clientname,cr3ed_product,cr3ed_status,cr3ed_startdate&$orderby=createdon desc',
+    `$select=cr3ed_casesdevid,cr3ed_casename,cr3ed_clientname,cr3ed_product,cr3ed_status,cr3ed_startdate&$filter=${accessFilter}&$orderby=createdon desc`,
   )) as { value: CaseListItem[] };
 
   const cases = result.value;

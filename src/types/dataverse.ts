@@ -14,6 +14,12 @@ export interface CaseDevRecord {
 cr3ed_Source?: number; // Choice: Source Tag
 cr3ed_StartDate?: string;
   cr3ed_Status?: number;
+  // Added 2026-07-13 for dashboard access scoping (see
+  // dashboard/page.tsx) — minimal first pass of the agreed Organization/
+  // per-case-allocation model. Not yet written by any code path; Tim
+  // populates these by hand in Power Apps per Case for now.
+  cr3ed_OrganizationName?: string;
+  cr3ed_AllowedUsers?: string; // semicolon-separated list of emails
 }
 
 export interface DocumentDevRecord {
