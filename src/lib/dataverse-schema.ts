@@ -78,3 +78,67 @@ export function documentTypeForKind(kind: 'email' | 'pdf' | 'docx' | 'other'): n
       return DOCUMENT_TYPE.Other;
   }
 }
+
+// Reverse-lookup label helpers for the Claims Intelligence dashboard UI
+// (src/app/dashboard). Dataverse Choice values are just numbers on the
+// wire — these turn them back into display text. Keep in sync with the
+// Choice constants above if values ever change in Power Apps.
+export function labelForProductTag(value?: number): string {
+  switch (value) {
+    case PRODUCT_TAG.ClaimsIntelligence:
+      return 'Claims Intelligence';
+    case PRODUCT_TAG.ClaimScore:
+      return 'Claim Score';
+    case PRODUCT_TAG.DueDiligence:
+      return 'Due Diligence';
+    case PRODUCT_TAG.ManagementIntelligence:
+      return 'Management Intelligence';
+    case PRODUCT_TAG.ContractIntelligence:
+      return 'Contract Intelligence';
+    default:
+      return 'Unknown';
+  }
+}
+
+export function labelForSourceTag(value?: number): string {
+  switch (value) {
+    case SOURCE_TAG.ClaimsConsultant:
+      return 'Claims Consultant';
+    case SOURCE_TAG.Subcontractor:
+      return 'Subcontractor';
+    case SOURCE_TAG.Contractor:
+      return 'Contractor';
+    case SOURCE_TAG.PrivateEquity:
+      return 'Private Equity';
+    case SOURCE_TAG.Lawyer:
+      return 'Lawyer';
+    default:
+      return 'Unknown';
+  }
+}
+
+export function labelForStatus(value?: number): string {
+  switch (value) {
+    case STATUS.Open:
+      return 'Open';
+    case STATUS.Closed:
+      return 'Closed';
+    case STATUS.OnHold:
+      return 'On Hold';
+    default:
+      return 'Unknown';
+  }
+}
+
+export function labelForDocumentType(value?: number): string {
+  switch (value) {
+    case DOCUMENT_TYPE.Email:
+      return 'Email';
+    case DOCUMENT_TYPE.PDF:
+      return 'PDF';
+    case DOCUMENT_TYPE.WordDocument:
+      return 'Word Document';
+    default:
+      return 'Other';
+  }
+}
