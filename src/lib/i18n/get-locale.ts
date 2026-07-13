@@ -1,10 +1,12 @@
 import { cookies, headers } from 'next/headers';
 import { defaultLocale, localeCodes, type LocaleCode } from './config';
+import { LOCALE_COOKIE_NAME } from './locale-cookie';
 
-// Name of the cookie the language switcher writes when someone manually
-// picks a language. Kept here (not inline) so the switcher component and
-// this resolver can't drift apart.
-export const LOCALE_COOKIE_NAME = 'chronicle_locale';
+// Re-exported so existing imports of LOCALE_COOKIE_NAME from this file
+// keep working — the actual value lives in locale-cookie.ts, which has no
+// next/headers import, so <LanguageSwitcher /> (a Client Component) can
+// import the name directly from there instead of from here.
+export { LOCALE_COOKIE_NAME };
 
 // Resolves which language to render the current request in.
 //

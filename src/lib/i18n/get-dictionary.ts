@@ -1,4 +1,3 @@
-import 'server-only';
 import type { LocaleCode } from './config';
 import { defaultLocale } from './config';
 

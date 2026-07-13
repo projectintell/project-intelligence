@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { locales } from '@/lib/i18n/config';
-import { LOCALE_COOKIE_NAME } from '@/lib/i18n/get-locale';
+import { LOCALE_COOKIE_NAME } from '@/lib/i18n/locale-cookie';
 
 // Manual language override. Renders nothing until a second language exists
 // in src/lib/i18n/config.ts — a dropdown with one option is just clutter,
