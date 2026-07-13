@@ -26,6 +26,16 @@ import { getSessionUser } from '@/lib/auth';
 // dataverse.ts's lowercaseKeys() comment, which only covers writes. The
 // CaseListItem type below reflects that; don't reuse CaseDevRecord
 // (types/dataverse.ts) here, it's the write-shape and its keys won't match.
+//
+// Filtering is done in JS after fetching, not via OData $filter — a first
+// version tried `$filter=contains(tolower(cr3ed_allowedusers),...)` and it
+// 501'd live ("The 'contains' function isn't supported"). Dataverse's
+// OData implementation doesn't support the standard `contains()` function
+// (it needs a proprietary `Microsoft.Dynamics.CRM.Contains` form instead,
+// which is awkward for a semicolon-list substring check) — plain
+// JS `.includes()` on the fetched rows is simpler and avoids relying on
+// Dataverse-specific OData quirks. Case count here is small (dozens, not
+// thousands) so fetching unfiltered and filtering in memory is fine.
 export const dynamic = 'force-dynamic';
 
 interface CaseListItem {
@@ -35,24 +45,23 @@ interface CaseListItem {
   cr3ed_product?: number;
   cr3ed_status?: number;
   cr3ed_startdate?: string;
+  cr3ed_allowedusers?: string;
 }
 
 export default async function DashboardPage() {
   const session = await getSessionUser();
-  const userEmail = (session?.user?.email ?? '').toLowerCase().replace(/'/g, "''");
-
-  // No accessFilter value means "no email on the session" — fail closed
-  // (only show unscoped/blank Cases) rather than fail open.
-  const accessFilter = userEmail
-    ? `(contains(tolower(cr3ed_allowedusers),'${userEmail}') or cr3ed_allowedusers eq null)`
-    : 'cr3ed_allowedusers eq null';
+  const userEmail = (session?.user?.email ?? '').toLowerCase();
 
   const result = (await dataverse.list(
     DATAVERSE_TABLES.casesDev,
-    `$select=cr3ed_casesdevid,cr3ed_casename,cr3ed_clientname,cr3ed_product,cr3ed_status,cr3ed_startdate&$filter=${accessFilter}&$orderby=createdon desc`,
+    '$select=cr3ed_casesdevid,cr3ed_casename,cr3ed_clientname,cr3ed_product,cr3ed_status,cr3ed_startdate,cr3ed_allowedusers&$orderby=createdon desc',
   )) as { value: CaseListItem[] };
 
-  const cases = result.value;
+  // Blank cr3ed_allowedusers = visible to everyone (pre-scoping Cases);
+  // same rule as cases/[caseId]/page.tsx.
+  const cases = result.value.filter((c) =>
+    c.cr3ed_allowedusers ? c.cr3ed_allowedusers.toLowerCase().includes(userEmail) : true,
+  );
 
   return (
     <div>
