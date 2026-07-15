@@ -1,11 +1,18 @@
 import { extractText as extractPdfText, getDocumentProxy } from 'unpdf';
 import mammoth from 'mammoth';
 import MsgReader from '@kenjiuno/msgreader';
+import { simpleParser } from 'mailparser';
 
 // Turns an uploaded file's raw bytes into plain text for extractEvents()
 // (lib/claude.ts) to consume, plus the handful of document-metadata fields
 // the Documents Dev Dataverse table wants (sender, dated, document type).
-// Accepted formats confirmed in build-decisions.md: PDF, DOCX, MSG only.
+// Accepted formats: PDF, DOCX, MSG (build-decisions.md), plus EML —
+// added 2026-07-15 for the Full Review-tier volume test, since the
+// realistic subcontractor sample document set uses .eml (a plain
+// RFC 5322 text format, not Outlook's binary .msg) throughout. EML and
+// MSG both classify as DocumentKind 'email' (documentTypeForKind in
+// dataverse-schema.ts doesn't need to know the difference) but need
+// different parsers, so dispatch is on file extension, not kind.
 
 export type DocumentKind = 'pdf' | 'docx' | 'email' | 'other';
 
@@ -16,11 +23,11 @@ export interface ExtractedDocument {
   documentDated?: string; // ISO YYYY-MM-DD if known
 }
 
-function kindFromFilename(filename: string): DocumentKind {
+type FileExtension = 'pdf' | 'docx' | 'doc' | 'msg' | 'eml' | 'other';
+
+function extFromFilename(filename: string): FileExtension {
   const ext = filename.toLowerCase().split('.').pop();
-  if (ext === 'pdf') return 'pdf';
-  if (ext === 'docx' || ext === 'doc') return 'docx';
-  if (ext === 'msg') return 'email';
+  if (ext === 'pdf' || ext === 'docx' || ext === 'doc' || ext === 'msg' || ext === 'eml') return ext;
   return 'other';
 }
 
@@ -47,6 +54,16 @@ function extractMsg(buffer: ArrayBuffer): ExtractedDocument {
   return { kind: 'email', text: `${subject}${bodyText}`, sender, documentDated };
 }
 
+async function extractEml(nodeBuffer: Buffer): Promise<ExtractedDocument> {
+  const parsed = await simpleParser(nodeBuffer);
+  const bodyText = parsed.text ?? (typeof parsed.html === 'string' ? parsed.html : '') ?? '';
+  const subject = parsed.subject ? `Subject: ${parsed.subject}\n\n` : '';
+  const fromValue = Array.isArray(parsed.from?.value) ? parsed.from?.value[0] : undefined;
+  const sender = fromValue?.address ?? parsed.from?.text ?? undefined;
+  const documentDated = parsed.date ? parsed.date.toISOString().slice(0, 10) : undefined;
+  return { kind: 'email', text: `${subject}${bodyText}`, sender, documentDated };
+}
+
 /**
  * Extracts plain text (+ known metadata) from an uploaded document's raw
  * bytes, dispatching on file extension. Throws on unsupported/corrupt files
@@ -57,17 +74,20 @@ export async function extractDocumentText(
   filename: string,
   buffer: ArrayBuffer,
 ): Promise<ExtractedDocument> {
-  const kind = kindFromFilename(filename);
+  const ext = extFromFilename(filename);
   const nodeBuffer = Buffer.from(buffer);
 
-  switch (kind) {
+  switch (ext) {
     case 'pdf':
       return extractPdf(new Uint8Array(buffer));
     case 'docx':
+    case 'doc':
       return extractDocx(nodeBuffer);
-    case 'email':
+    case 'msg':
       return extractMsg(buffer);
+    case 'eml':
+      return extractEml(nodeBuffer);
     default:
-      throw new Error(`Unsupported file type for "${filename}" — only PDF, DOCX, MSG are accepted`);
+      throw new Error(`Unsupported file type for "${filename}" — only PDF, DOCX, MSG, EML are accepted`);
   }
 }

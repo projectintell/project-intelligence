@@ -57,10 +57,10 @@ function UploadBox({
   return (
     <div className="rounded-lg border border-dashed border-slate-300 p-6">
       <label className="block cursor-pointer text-center text-sm text-slate-500">
-        {busy ? 'Uploading…' : `${label} — click to upload (PDF, DOCX, MSG)`}
+        {busy ? 'Uploading…' : `${label} — click to upload (PDF, DOCX, MSG, EML)`}
         <input
           type="file"
-          accept=".pdf,.docx,.doc,.msg"
+          accept=".pdf,.docx,.doc,.msg,.eml"
           multiple
           className="hidden"
           onChange={handleChange}

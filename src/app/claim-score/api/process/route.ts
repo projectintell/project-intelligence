@@ -23,10 +23,19 @@ import type { CaseDevRecord, DocumentDevRecord, EventDevRecord } from '@/types/d
 //      ticked the consultant opt-in box — email the lead notification.
 //
 // Processed synchronously with limited concurrency inside one request, per
-// build-decisions.md's "Long jobs" call: simplest option, using Vercel
-// Pro's longer maxDuration rather than a background queue. Revisit only if
-// real testing shows Full Review-tier submissions (~100 docs) are too slow.
-export const maxDuration = 300; // seconds — requires Vercel Pro
+// build-decisions.md's "Long jobs" call: simplest option, using a longer
+// maxDuration rather than a background queue. Revisit only if real testing
+// shows Full Review-tier submissions (~100 docs) are too slow.
+//
+// Correction (session 8): this does NOT require a Vercel Pro upgrade, despite
+// earlier session notes assuming it did. Confirmed live in Vercel's project
+// settings (Functions tab) that Fluid Compute is enabled on this project, and
+// per Vercel's current docs, Fluid Compute raises the Hobby plan's function
+// duration ceiling from 60s to the same 300s default Pro gets — so this
+// route can already run its full 300s on the Hobby plan it's on today.
+// Vercel Pro may still be worth it later for other reasons (custom domains,
+// team seats, etc.), but it is not a blocker for real document submissions.
+export const maxDuration = 300; // seconds — supported on Hobby via Fluid Compute, see comment above
 
 const EXTRACTION_CONCURRENCY = 5;
 const MAX_STORED_TEXT_LENGTH = 4_000; // cr3ed_TextExtraction's Dataverse max character count (raised from 100 to 4000 by Tim; can be raised further later)
