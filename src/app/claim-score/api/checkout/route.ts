@@ -11,6 +11,14 @@ import { CLAIM_SCORE_TIERS } from '@/lib/pricing';
 // Stripe's own custom_fields so the consultant lead notification
 // (lib/consultant-notify.ts, Q7) has something to show beyond just an
 // email address.
+//
+// Wired up to real Stripe Price objects (session 8) instead of inline
+// price_data, per tier + consultant-opt-in combination — see the
+// stripePriceId/stripePriceIdConsultant comment in lib/pricing.ts. One
+// combination (Snapshot + consultant) still falls back to inline
+// price_data because its Stripe sandbox Price object is currently
+// mis-configured as recurring; remove the fallback once Tim supplies the
+// corrected one-time price ID.
 export async function POST(req: NextRequest) {
   const form = await req.formData();
   const tierId = form.get('tier');
@@ -22,17 +30,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unknown tier' }, { status: 400 });
   }
 
+  const stripePriceId = consultantOptIn ? tier.stripePriceIdConsultant : tier.stripePriceId;
+
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     line_items: [
-      {
-        price_data: {
-          currency: 'gbp',
-          unit_amount: (consultantOptIn ? tier.withConsultant : tier.price) * 100,
-          product_data: { name: `Claim Score — ${tier.name}` },
-        },
-        quantity: 1,
-      },
+      stripePriceId
+        ? { price: stripePriceId, quantity: 1 }
+        : {
+            price_data: {
+              currency: 'gbp',
+              unit_amount: (consultantOptIn ? tier.withConsultant : tier.price) * 100,
+              product_data: { name: `Claim Score — ${tier.name}` },
+            },
+            quantity: 1,
+          },
     ],
     custom_fields: [
       {
