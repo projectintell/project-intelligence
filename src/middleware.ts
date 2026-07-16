@@ -29,6 +29,19 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+// Next.js's matcher `:path*` segment does NOT reliably match the bare parent
+// route (confirmed live, session 9/10 — e.g. Stripe's success_url lands on
+// the bare `/claim-score/upload`, not `/claim-score/upload/something`, and
+// the middleware function above never ran at all for that request). Each
+// protected route is listed twice — once bare, once with `/:path*` — rather
+// than relying on the wildcard alone to cover both cases.
 export const config = {
-  matcher: ['/dashboard/:path*', '/claim-score/upload/:path*', '/claim-score/results/:path*'],
+  matcher: [
+    '/dashboard',
+    '/dashboard/:path*',
+    '/claim-score/upload',
+    '/claim-score/upload/:path*',
+    '/claim-score/results',
+    '/claim-score/results/:path*',
+  ],
 };
