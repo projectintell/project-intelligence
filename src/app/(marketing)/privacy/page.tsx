@@ -135,11 +135,10 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-semibold text-slate-900">8. Contact us</h2>
           <p className="mt-2">
             For any question about this policy or your data, contact{' '}
-            <a href="mailto:trichmond@warmflamedevelopments.com" className="underline">
-              trichmond@warmflamedevelopments.com
-            </a>{' '}
-            (a dedicated privacy@chronicleintel.com address will replace this
-            once the domain&apos;s email is set up).
+            <a href="mailto:privacy@chronicleintel.com" className="underline">
+              privacy@chronicleintel.com
+            </a>
+            .
           </p>
         </div>
 

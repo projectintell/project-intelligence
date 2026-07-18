@@ -128,8 +128,8 @@ export default function TermsPage() {
           <h2 className="text-lg font-semibold text-slate-900">11. Contact us</h2>
           <p className="mt-2">
             Questions about these terms:{' '}
-            <a href="mailto:trichmond@warmflamedevelopments.com" className="underline">
-              trichmond@warmflamedevelopments.com
+            <a href="mailto:privacy@chronicleintel.com" className="underline">
+              privacy@chronicleintel.com
             </a>
             .
           </p>

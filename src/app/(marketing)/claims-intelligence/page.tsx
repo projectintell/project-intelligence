@@ -58,12 +58,18 @@ export default function ClaimsIntelligencePage() {
           really happened.
         </p>
         <div className="mt-8 flex gap-4">
-          <a
-            href="mailto:trichmond@warmflamedevelopments.com?subject=Claims%20Intelligence%20demo"
+          {/* Temporarily inert (2026-07-18, Tim's request): was a mailto:
+              link, which browsers preview in the status bar on hover,
+              exposing Tim's personal email address. Plain non-mailto button
+              for now, deliberately not wired up to anything — this will
+              become a "Start free trial" CTA once that flow exists, not a
+              restored demo link. */}
+          <button
+            type="button"
             className="rounded-md bg-slate-900 px-5 py-3 text-sm font-medium text-white"
           >
             Book a Demo
-          </a>
+          </button>
           <a
             href="#how-it-works"
             className="rounded-md border border-slate-300 px-5 py-3 text-sm font-medium"
@@ -387,12 +393,14 @@ export default function ClaimsIntelligencePage() {
           confidence.
         </p>
         <div className="mt-6">
-          <a
-            href="mailto:trichmond@warmflamedevelopments.com?subject=Claims%20Intelligence%20demo"
+          {/* Same fix as the top-of-page CTA above — was a mailto: link
+              leaking Tim's email in the browser's hover status bar. */}
+          <button
+            type="button"
             className="rounded-md bg-slate-900 px-5 py-3 text-sm font-medium text-white"
           >
             Book your demonstration today
-          </a>
+          </button>
         </div>
       </section>
     </div>
