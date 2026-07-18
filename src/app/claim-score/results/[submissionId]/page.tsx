@@ -1,15 +1,27 @@
+import { notFound } from 'next/navigation';
 import { readSubmissionResult } from '@/lib/blob';
+import { checkSubmissionAccess } from '@/lib/claim-score-access';
 
 // Results page — by the time a subcontractor lands here (redirected from
 // the upload page only after /claim-score/api/process has already
 // completed synchronously), result.json should already exist in Blob.
 // See build-decisions.md "Document processing pipeline" for why scoring
 // is synchronous rather than a background job for now.
+//
+// Security fix (2026-07-18): middleware.ts only confirms *a* subcontractor
+// session is signed in, not that it's the one this submission belongs to —
+// without this check, any paying customer could read any other customer's
+// confidential results by editing the ID in the URL (IDOR). 404s rather
+// than a permission error, same as the dashboard's case-access pattern, so
+// a disallowed ID doesn't confirm it exists.
 export default async function ClaimScoreResultsPage({
   params,
 }: {
   params: { submissionId: string };
 }) {
+  const access = await checkSubmissionAccess(params.submissionId);
+  if (!access.ok) notFound();
+
   const result = await readSubmissionResult(params.submissionId);
 
   return (

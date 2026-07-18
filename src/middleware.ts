@@ -11,10 +11,21 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isDashboardRoute = pathname.startsWith('/dashboard') && pathname !== '/dashboard/signin';
-  const isClaimScoreProtectedRoute =
+  const isClaimScorePageRoute =
     pathname.startsWith('/claim-score/upload') || pathname.startsWith('/claim-score/results');
+  // Security fix (2026-07-18): these API routes were NOT covered by the page
+  // matcher below — /claim-score/api/upload and /claim-score/api/process do
+  // the actual file-upload and Claude/Dataverse processing work, and had zero
+  // session check of their own. Anyone with a submissionId (visible in the
+  // browser URL as ?session_id=) could call them directly with no sign-in at
+  // all. Gated here explicitly, separately from the page routes, because an
+  // unauthenticated fetch() should get a 401 JSON response, not a redirect to
+  // an HTML sign-in page (which `fetch` would otherwise follow and treat as a
+  // 200 OK, masking the failure from the calling client code).
+  const isClaimScoreApiRoute =
+    pathname.startsWith('/claim-score/api/upload') || pathname.startsWith('/claim-score/api/process');
 
-  if (!isDashboardRoute && !isClaimScoreProtectedRoute) {
+  if (!isDashboardRoute && !isClaimScorePageRoute && !isClaimScoreApiRoute) {
     return NextResponse.next();
   }
 
@@ -24,7 +35,15 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard/signin', req.url));
   }
 
-    if (isClaimScoreProtectedRoute && token?.userType !== 'subcontractor') { const signInUrl = new URL('/claim-score/signin', req.url); signInUrl.searchParams.set('callbackUrl', pathname + req.nextUrl.search); return NextResponse.redirect(signInUrl); }
+  if (isClaimScorePageRoute && token?.userType !== 'subcontractor') {
+    const signInUrl = new URL('/claim-score/signin', req.url);
+    signInUrl.searchParams.set('callbackUrl', pathname + req.nextUrl.search);
+    return NextResponse.redirect(signInUrl);
+  }
+
+  if (isClaimScoreApiRoute && token?.userType !== 'subcontractor') {
+    return NextResponse.json({ error: 'Unauthorized — please sign in.' }, { status: 401 });
+  }
 
   return NextResponse.next();
 }
@@ -43,5 +62,9 @@ export const config = {
     '/claim-score/upload/:path*',
     '/claim-score/results',
     '/claim-score/results/:path*',
+    '/claim-score/api/upload',
+    '/claim-score/api/upload/:path*',
+    '/claim-score/api/process',
+    '/claim-score/api/process/:path*',
   ],
 };

@@ -23,12 +23,21 @@ function blobAuthHeaders() {
     return { Authorization: `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` };
 }
 
+// Security fix (2026-07-18): strip path separators and leading dots from
+// the client-supplied filename before it becomes part of the Blob storage
+// path — a crafted name like "../../other-id/terms/x.pdf" shouldn't be able
+// to influence where the file actually lands.
+function sanitizeFilename(name: string): string {
+    const stripped = name.replace(/[/\\]/g, '_').replace(/^\.+/, '');
+    return stripped || 'file';
+}
+
 export async function uploadSubmissionFile(
     submissionId: string,
     box: string,
     file: File,
   ) {
-    return put(`claim-score/${submissionId}/${box}/${file.name}`, file, {
+    return put(`claim-score/${submissionId}/${box}/${sanitizeFilename(file.name)}`, file, {
           access: 'private',
           addRandomSuffix: true,
     });

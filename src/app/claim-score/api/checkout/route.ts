@@ -14,11 +14,10 @@ import { CLAIM_SCORE_TIERS } from '@/lib/pricing';
 //
 // Wired up to real Stripe Price objects (session 8) instead of inline
 // price_data, per tier + consultant-opt-in combination — see the
-// stripePriceId/stripePriceIdConsultant comment in lib/pricing.ts. One
-// combination (Snapshot + consultant) still falls back to inline
-// price_data because its Stripe sandbox Price object is currently
-// mis-configured as recurring; remove the fallback once Tim supplies the
-// corrected one-time price ID.
+// stripePriceId/stripePriceIdConsultant comment in lib/pricing.ts. All 6
+// combinations now use real Price objects (session 10 fixed the last
+// one, Snapshot + consultant); the price_data branch below is now just a
+// safety fallback, not expected to fire in normal operation.
 export async function POST(req: NextRequest) {
   const form = await req.formData();
   const tierId = form.get('tier');

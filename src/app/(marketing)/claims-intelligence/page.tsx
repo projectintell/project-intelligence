@@ -34,14 +34,6 @@ const ROLES = [
   },
 ];
 
-const EXAMPLE_QUERIES = [
-  'Show every Extension of Time request.',
-  'Find all Employer Instructions issued during March.',
-  'Show every event involving the structural engineer.',
-  'Find correspondence relating to waterproofing.',
-  'List all delay events affecting the critical path.',
-];
-
 export default function ClaimsIntelligencePage() {
   return (
     <div className="py-16">
@@ -287,27 +279,11 @@ export default function ClaimsIntelligencePage() {
           <p className="font-medium">3. Your chronology builds itself</p>
           <p className="mt-2 max-w-2xl text-slate-600">
             As documents are processed, Claims Intelligence continuously
-            builds an evidence-backed chronology. Search by date, person,
-            organisation, subject, event type, document or confidence.
-            Instead of reading thousands of documents, you&apos;re navigating
-            the project history.
+            builds an evidence-backed chronology, with every event linked
+            back to its source document. Instead of reading thousands of
+            documents, you&apos;re navigating the project history.
           </p>
         </div>
-      </section>
-
-      {/* Intelligent search */}
-      <section className="mt-16 border-t border-slate-100 pt-16">
-        <h2 className="text-2xl font-bold">Intelligent search</h2>
-        <p className="mt-3 max-w-2xl text-slate-600">Ask questions such as:</p>
-        <ul className="mt-4 space-y-2 text-slate-600">
-          {EXAMPLE_QUERIES.map((q) => (
-            <li key={q} className="italic">&ldquo;{q}&rdquo;</li>
-          ))}
-        </ul>
-        <p className="mt-4 max-w-2xl text-slate-600">
-          Instead of searching files, you&apos;re searching structured
-          evidence.
-        </p>
       </section>
 
       {/* Surface the facts faster */}

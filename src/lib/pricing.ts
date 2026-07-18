@@ -6,13 +6,14 @@
 // objects in the test-mode sandbox (Tim set these up directly in Stripe,
 // session 1; pulled and wired in session 8 — see handoff-notes.md).
 // checkout/route.ts uses these when present and falls back to inline
-// price_data otherwise, which is currently only Snapshot's consultant
-// price: the Stripe object for it (price_1Tqx8XJoFoQljCXrGbazrRgt) was
-// found in session 8 to be wrongly configured as a recurring monthly
-// subscription instead of one-time — Stripe rejects recurring prices in
-// a one-time 'payment' mode Checkout Session. Tim is creating a
-// corrected one-time £67 price in Stripe test mode; swap the ID in below
-// once it exists and remove this comment.
+// price_data otherwise.
+//
+// Session 8 found Snapshot's consultant price (price_1Tqx8XJoFoQljCXrGbazrRgt)
+// wrongly configured as a recurring monthly subscription instead of
+// one-time. Session 10: Tim confirmed the fix and passed this same price
+// ID back — re-verified live in the Stripe test dashboard before wiring it
+// in (per the standing rule not to trust a Price object's config without
+// checking): Interval now correctly shows "One-time", £67.00. Safe to use.
 export const CLAIM_SCORE_TIERS = [
   {
     id: 'snapshot',
@@ -22,7 +23,7 @@ export const CLAIM_SCORE_TIERS = [
     price: 79,
     withConsultant: 67,
     stripePriceId: 'price_1Tqx8XJoFoQljCXr7ZbjriLv',
-    stripePriceIdConsultant: null as string | null, // pending fix, see comment above
+    stripePriceIdConsultant: 'price_1Tqx8XJoFoQljCXrGbazrRgt' as string | null,
   },
   {
     id: 'standard',

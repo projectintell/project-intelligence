@@ -4,9 +4,9 @@ import { notifyConsultantOfLead } from '@/lib/consultant-notify';
 import { extractDocumentText } from '@/lib/text-extraction';
 import {
   listSubmissionFiles,
-  readSubmissionMeta,
   writeSubmissionResult,
 } from '@/lib/blob';
+import { checkSubmissionAccess } from '@/lib/claim-score-access';
 // redeploy trigger: force fresh build after transient Vercel infra failure
 import { dataverse } from '@/lib/dataverse';
 import { DATAVERSE_TABLES, PRODUCT_TAG, SOURCE_TAG, documentTypeForKind } from '@/lib/dataverse-schema';
@@ -69,9 +69,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing submissionId or userQuestion' }, { status: 400 });
   }
 
-  // Step 1: submission + documents.
-  const [meta, caseResult, files] = await Promise.all([
-    readSubmissionMeta(submissionId),
+  // Security fix (2026-07-18): validates submissionId's format — closing off
+  // the OData-injection risk in the $filter string below, which previously
+  // took this value unvalidated straight from the request body — and
+  // confirms the signed-in session actually owns this submission (IDOR fix;
+  // see lib/claim-score-access.ts for both).
+  const access = await checkSubmissionAccess(submissionId);
+  if (!access.ok) {
+    return NextResponse.json({ error: access.error }, { status: access.status });
+  }
+  const meta = access.meta;
+
+  // Step 1: case record + documents. submissionId is confirmed well-formed
+  // by checkSubmissionAccess above, so it's safe to interpolate here.
+  const [caseResult, files] = await Promise.all([
     dataverse.list(
       DATAVERSE_TABLES.casesDev,
       `$filter=cr3ed_caseid eq '${submissionId}'`,
@@ -80,7 +91,7 @@ export async function POST(req: NextRequest) {
   ]);
 
   const caseRecord = caseResult.value[0];
-  if (!meta || !caseRecord?.cr3ed_casesdevid) {
+  if (!caseRecord?.cr3ed_casesdevid) {
     return NextResponse.json({ error: 'Submission not found — payment may not be confirmed yet' }, { status: 404 });
   }
   if (files.length === 0) {
